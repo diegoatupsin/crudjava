@@ -1,0 +1,467 @@
+package Paneles;
+
+import Formularios.FormAgregarItem;
+import Formularios.FormEditarItem;
+import Modelos.Items;
+import Modelos.Usuarios;
+import dao.ItemsDAO;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import utils.manejadorDePermisos;
+
+public class CatalogoPanel extends javax.swing.JPanel {
+
+    private boolean mostrarObjetosEliminados = false;
+    
+    public CatalogoPanel(Usuarios usuario) {
+         manejadorDePermisos permisos = new manejadorDePermisos(usuario);
+        
+        initComponents();
+        
+        btnCrearItem.setEnabled(permisos.puedeInsertarItems());
+        btnEliminarItem.setEnabled(permisos.puedeEliminarItems());
+        btnModificarItem.setEnabled(permisos.puedeActualizarItems());
+        btnReactivarCliente.setEnabled(permisos.puedeEliminarItems());
+        ckbMostrarEliminados.setEnabled(permisos.puedeEliminarItems());
+        tablaItems.setVisible(permisos.puedeConsultarItems());
+        
+        cargarDatos();
+    }
+    
+    public void cargarDatos() {
+        ItemsDAO itemsDAO = new ItemsDAO();
+        List<Items> items = itemsDAO.obtenerItems();
+
+        DefaultTableModel model = new DefaultTableModel(new String[]{"idItems", "NombreItems", "Descripcion", "Existencia", "Precio", "Tipo", "Unidad", "Proveedor"}, 0);
+        for (Items item : items) {
+            if (!mostrarObjetosEliminados) {
+                if (item.getEstatusItems() == 1) {
+                    model.addRow(new Object[]{
+                        item.getIdItems(),
+                        item.getNombreItem(),
+                        item.getDescripcionItem(),
+                        item.getExistencia(),
+                        item.getPrecioProducto(),
+                        item.getTipoItem(),
+                        item.getUnidadItem(),
+                        item.getProveedores_idProveedores()
+                    });
+                } 
+            } else {
+                if (item.getEstatusItems() == 0) {
+                    model.addRow(new Object[]{
+                        item.getIdItems(),
+                        item.getNombreItem(),
+                        item.getDescripcionItem(),
+                        item.getExistencia(),
+                        item.getPrecioProducto(),
+                        item.getTipoItem(),
+                        item.getUnidadItem(),
+                        item.getProveedores_idProveedores()
+                    });
+                }
+            }
+        }
+        tablaItems.setModel(model);
+        
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        tablaItems.setRowSorter(sorter);
+        
+        txtfBuscarCliente.getDocument().addDocumentListener(new DocumentListener() {
+            
+        public void insertUpdate(DocumentEvent e) {
+            filter();
+        }
+
+        public void removeUpdate(DocumentEvent e) {
+            filter();
+        }
+
+        public void changedUpdate(DocumentEvent e) {
+            filter();
+        }
+
+        private void filter() {
+            String text = txtfBuscarCliente.getText();
+            if (text.trim().length() == 0) {
+                sorter.setRowFilter(null);
+            } else {
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+            }
+        }
+        });
+
+    }
+    
+    private void editarItem() {
+        int row = tablaItems.getSelectedRow();
+        
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un usuario para editar.");
+            return;
+        }
+        
+        // obtiene los valores del item a editar
+        int id = (int) tablaItems.getValueAt(row, 0);
+        String nombre = (String) tablaItems.getValueAt(row, 1);
+        String descripcion = (String) tablaItems.getValueAt(row, 2);
+        int existencia = (int) tablaItems.getValueAt(row, 3);
+        float precio = (float) tablaItems.getValueAt(row, 4);
+        String tipo = (String) tablaItems.getValueAt(row, 5);
+        String unidad = (String) tablaItems.getValueAt(row, 6);
+        int idProveedor = (int) tablaItems.getValueAt(row, 7);
+        
+        // poner los datos en un objeto item, estado 1 no puedes editar un item inactivo
+        Items item = new Items(id, nombre, descripcion, existencia, precio, tipo, unidad, idProveedor, 1);
+        
+        // abre el nuevo formulario con el cliente seleccionado
+        FormEditarItem form = new FormEditarItem(this, item);
+        form.setVisible(true);
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tablaItems = new javax.swing.JTable();
+        lblTablaCatalogo = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btnCrearItem = new javax.swing.JButton();
+        lblBuscarCliente = new javax.swing.JLabel();
+        btnModificarItem = new javax.swing.JButton();
+        txtfBuscarCliente = new javax.swing.JTextField();
+        btnEliminarItem = new javax.swing.JButton();
+        btnReactivarCliente = new javax.swing.JButton();
+        ckbMostrarEliminados = new javax.swing.JCheckBox();
+
+        setBackground(new java.awt.Color(255, 255, 255));
+        setPreferredSize(new java.awt.Dimension(900, 740));
+
+        tablaItems.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Tipo", "ID", "Nombre", "Descripción", "Unidad", "Precio", "Existencia", "Acciones"
+            }
+        ));
+        tablaItems.setRowHeight(80);
+        jScrollPane1.setViewportView(tablaItems);
+
+        lblTablaCatalogo.setFont(new java.awt.Font("Tahoma", 1, 20)); // NOI18N
+        lblTablaCatalogo.setText("Tabla: Catálogo");
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        btnCrearItem.setBackground(new java.awt.Color(52, 199, 89));
+        btnCrearItem.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btnCrearItem.setForeground(new java.awt.Color(255, 255, 255));
+        btnCrearItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/icons8-añadir-20.png"))); // NOI18N
+        btnCrearItem.setText("Añadir item ");
+        btnCrearItem.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnCrearItemMouseClicked(evt);
+            }
+        });
+        btnCrearItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCrearItemActionPerformed(evt);
+            }
+        });
+
+        lblBuscarCliente.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/icons8-búsqueda-20.png"))); // NOI18N
+        lblBuscarCliente.setText("Buscar:");
+
+        btnModificarItem.setBackground(new java.awt.Color(248, 250, 252));
+        btnModificarItem.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btnModificarItem.setForeground(new java.awt.Color(102, 112, 133));
+        btnModificarItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/icons8-editar-20.png"))); // NOI18N
+        btnModificarItem.setText("Modificar");
+        btnModificarItem.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnModificarItemMouseClicked(evt);
+            }
+        });
+        btnModificarItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModificarItemActionPerformed(evt);
+            }
+        });
+
+        txtfBuscarCliente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtfBuscarClienteActionPerformed(evt);
+            }
+        });
+
+        btnEliminarItem.setBackground(new java.awt.Color(255, 85, 85));
+        btnEliminarItem.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btnEliminarItem.setForeground(new java.awt.Color(255, 255, 255));
+        btnEliminarItem.setText("Eliminar");
+        btnEliminarItem.setPreferredSize(new java.awt.Dimension(142, 37));
+        btnEliminarItem.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnEliminarItemMouseClicked(evt);
+            }
+        });
+        btnEliminarItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarItemActionPerformed(evt);
+            }
+        });
+
+        btnReactivarCliente.setBackground(new java.awt.Color(52, 199, 89));
+        btnReactivarCliente.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btnReactivarCliente.setForeground(new java.awt.Color(255, 255, 255));
+        btnReactivarCliente.setText("Reactivar");
+        btnReactivarCliente.setPreferredSize(new java.awt.Dimension(93, 37));
+        btnReactivarCliente.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnReactivarClienteMouseClicked(evt);
+            }
+        });
+        btnReactivarCliente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReactivarClienteActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblBuscarCliente)
+                .addGap(18, 18, 18)
+                .addComponent(txtfBuscarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
+                .addComponent(btnReactivarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnEliminarItem, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnModificarItem)
+                .addGap(18, 18, 18)
+                .addComponent(btnCrearItem)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtfBuscarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblBuscarCliente)
+                    .addComponent(btnCrearItem, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnModificarItem, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEliminarItem, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnReactivarCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        ckbMostrarEliminados.setText("Mostrar objetos eliminados");
+        ckbMostrarEliminados.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ckbMostrarEliminadosActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(40, 40, 40)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblTablaCatalogo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(ckbMostrarEliminados)))
+                .addContainerGap(22, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblTablaCatalogo)
+                    .addComponent(ckbMostrarEliminados))
+                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 543, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(69, Short.MAX_VALUE))
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void txtfBuscarClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtfBuscarClienteActionPerformed
+    }//GEN-LAST:event_txtfBuscarClienteActionPerformed
+
+    private void btnModificarItemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnModificarItemMouseClicked
+    }//GEN-LAST:event_btnModificarItemMouseClicked
+
+    private void btnModificarItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarItemActionPerformed
+        editarItem();
+    }//GEN-LAST:event_btnModificarItemActionPerformed
+
+    private void btnCrearItemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnCrearItemMouseClicked
+
+    }//GEN-LAST:event_btnCrearItemMouseClicked
+
+    private void btnCrearItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearItemActionPerformed
+        FormAgregarItem formAgregarItem = new FormAgregarItem(this);
+        formAgregarItem.setVisible(true);
+    }//GEN-LAST:event_btnCrearItemActionPerformed
+
+    private void btnEliminarItemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarItemMouseClicked
+
+    }//GEN-LAST:event_btnEliminarItemMouseClicked
+
+    private void ckbMostrarEliminadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckbMostrarEliminadosActionPerformed
+            mostrarObjetosEliminados = ckbMostrarEliminados.isSelected();
+            cargarDatos();
+    }//GEN-LAST:event_ckbMostrarEliminadosActionPerformed
+
+    private void btnReactivarClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnReactivarClienteMouseClicked
+    }//GEN-LAST:event_btnReactivarClienteMouseClicked
+
+    private void btnReactivarClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReactivarClienteActionPerformed
+        if(!mostrarObjetosEliminados) {
+            return;
+        }
+
+        int row = tablaItems.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor selecciona un item a reactivar");
+            return;
+        }
+
+        int itemId = (int) tablaItems.getValueAt(row, 0);
+        String nombreItem = (String) tablaItems.getValueAt(row, 1);
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Estas seguro que quieres reactivar este item: " + nombreItem + "?",
+            "Confirmar",
+            JOptionPane.YES_NO_OPTION);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        ItemsDAO itemsDAO = new ItemsDAO();
+        
+        try {
+            boolean eliminado;
+            eliminado = itemsDAO.reactivarItem(itemId);
+
+            if (eliminado) {
+                JOptionPane.showMessageDialog(this, "Item reactivado");
+                cargarDatos(); // actualiza la tabla
+            } else {
+                JOptionPane.showMessageDialog(this, "Item no encontrado");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error reactivando item");
+        }
+    }//GEN-LAST:event_btnReactivarClienteActionPerformed
+
+    private void btnEliminarItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarItemActionPerformed
+        int row = tablaItems.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor selecciona un item a eliminar");
+            return;
+        }
+
+        int itemId = (int) tablaItems.getValueAt(row, 0);
+        String nombreItem = (String) tablaItems.getValueAt(row, 1);
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Estas seguro que quieres eliminar este item: " + nombreItem + "?",
+            "Confirmar",
+            JOptionPane.YES_NO_OPTION);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        ItemsDAO itemsDAO = new ItemsDAO();
+        
+        try {
+            boolean eliminado;
+            eliminado = itemsDAO.eliminarItem(itemId);
+
+            if (eliminado) {
+                JOptionPane.showMessageDialog(this, "Item eliminado");
+                cargarDatos(); // actualiza la tabla
+            } else {
+                JOptionPane.showMessageDialog(this, "Item no encontrado");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error eliminando item");
+        }
+    }//GEN-LAST:event_btnEliminarItemActionPerformed
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JButton btnCrearItem;
+    private javax.swing.JButton btnEliminarItem;
+    public javax.swing.JButton btnModificarItem;
+    public javax.swing.JButton btnReactivarCliente;
+    private javax.swing.JCheckBox ckbMostrarEliminados;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblBuscarCliente;
+    private javax.swing.JLabel lblTablaCatalogo;
+    private javax.swing.JTable tablaItems;
+    private javax.swing.JTextField txtfBuscarCliente;
+    // End of variables declaration//GEN-END:variables
+}
